@@ -198,7 +198,7 @@ def main():
                 #     draw_visited_node(screen, node, 50, 40)
 
         # Sleep for 50 milliseconds to release the CPU to other processors
-        # pygame.time.wait(50)
+        pygame.time.wait(25)
 
 
 if __name__ == "__main__":
