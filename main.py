@@ -152,8 +152,8 @@ def refresh_screen(screen, grid, rows, cols, node_width, node_height):
         grid (list): Nested list of lists representing each node in our graph
         rows (int): Number of rows in the graph 
         cols (int): Number of columns in the graph
-        node_width ([type]): Width of a single node
-        node_height ([type]): Height of a single node
+        node_width (int): Width of a single node
+        node_height (int): Height of a single node
     """
     screen.fill(Color.White.value)
 
