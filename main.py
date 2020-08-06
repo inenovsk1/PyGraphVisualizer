@@ -209,20 +209,29 @@ def draw_grid_borders(screen, rows, cols, node_width, node_height):
         cols (int): Number of columns in the graph
         node_width (int): Width of a single node
         node_height (int): Height of a single node
+
+    Returns:
+        list: All points that need to be redrawn by pygame due to a change.
+              This way one saves resources and does not redraw the entire screen.
     """
     # Get display size on any monitor - width x height
     info = pygame.display.Info()
     size = screen_width, screen_height = info.current_w, info.current_h
+    updated_points = list()
 
     for row in range(rows):
-        pygame.draw.line(screen, Color.Black.value, (0, row * node_height), (screen_width, row * node_height))
+        dims1 = pygame.draw.aaline(screen, Color.Black.value, (0, row * node_height), (screen_width, row * node_height))
+        updated_points.append(dims1)
 
         # Omit drawing the last raw for space padding
         if row == rows - 1:
             break
 
         for col in range(cols):
-            pygame.draw.line(screen, Color.Black.value, (col * node_width, row * node_height), (col * node_width, row * node_height + node_height))
+            dims2 = pygame.draw.aaline(screen, Color.Black.value, (col * node_width, row * node_height), (col * node_width, row * node_height + node_height))
+            updated_points.append(dims2)
+
+    return updated_points
 
 
 def refresh_screen(screen, grid, rows, cols, node_width, node_height):
@@ -244,9 +253,11 @@ def refresh_screen(screen, grid, rows, cols, node_width, node_height):
             changed_area = node.draw(screen)
             updated_points += changed_area
     
-    draw_grid_borders(screen, rows, cols, node_width, node_height)
+    grid_dims = draw_grid_borders(screen, rows, cols, node_width, node_height)
+    updated_points += grid_dims
     pygame.display.update(updated_points)
 
+    #TODO: Think about drawing animations while visualizing
 
 
 def get_clicked_position(pos, node_width, node_height):
@@ -268,7 +279,7 @@ def main():
     size = screen_width, screen_height = info.current_w, info.current_h
 
     #Calculate each node's width and height
-    rows = cols = 30
+    rows = cols = 90
     node_width = screen_width / rows
     node_height = screen_height // cols
     
@@ -290,7 +301,6 @@ def main():
             if pygame.mouse.get_pressed()[0]:
                 mouse_position = pygame.mouse.get_pos()
                 grid_position = get_clicked_position(mouse_position, node_width, node_height)
-                print(grid_position)
                 row, col = grid_position
                 node = grid[row][col]
 
@@ -303,14 +313,10 @@ def main():
                     end_node = node
 
                 elif node != start_node and node != end_node:
-                    print("different")
                     node.make_barrier()
 
-                print(start_node)
-                print(end_node)
-
-        # Sleep for 50 milliseconds to release the CPU to other processors
-        pygame.time.wait(25)
+        # Sleep for x milliseconds to release the CPU to other processes
+        pygame.time.wait(10)
 
 
 if __name__ == "__main__":
