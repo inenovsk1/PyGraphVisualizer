@@ -279,7 +279,7 @@ def main():
     size = screen_width, screen_height = info.current_w, info.current_h
 
     #Calculate each node's width and height
-    rows = cols = 90
+    rows = cols = 30
     node_width = screen_width / rows
     node_height = screen_height // cols
     
@@ -296,8 +296,7 @@ def main():
                 pygame.quit()
                 sys.exit(0)
             
-            # Keyboard input - space
-            # if event.type == pygame.MOUSEBUTTONDOWN:
+            # Mouse input - left mouse button
             if pygame.mouse.get_pressed()[0]:
                 mouse_position = pygame.mouse.get_pos()
                 grid_position = get_clicked_position(mouse_position, node_width, node_height)
