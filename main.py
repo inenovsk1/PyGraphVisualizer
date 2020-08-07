@@ -4,6 +4,8 @@ import sys
 import enum
 import math
 import pygame
+import graph_algo
+from functools import partial
 
 
 class Color(enum.Enum):
@@ -25,11 +27,11 @@ class Color(enum.Enum):
 class Node:
     """Represents a single node in our graph
     """
-    def __init__(self, row, col, width, height, total_rows, total_cols):
-        self._row = row
-        self._col = col
-        self._x = row * width
-        self._y = col * height
+    def __init__(self, x, y, width, height, total_rows, total_cols):
+        self._xcoord = x
+        self._ycoord = y
+        self._x = x * width
+        self._y = y * height
         self._width = width
         self._height = height
         self._color = Color.White
@@ -69,8 +71,19 @@ class Node:
     def height(self, val):
         self._height = val
 
+    @property
+    def color(self):
+        return self._color
+
+    @color.setter
+    def color(self, new_color):
+        self._color = new_color
+
+    def get_neighbors(self):
+        return self._neighbors
+
     def get_coord_position(self):
-        return self._row, self._col
+        return self._xcoord, self._ycoord
 
     def is_barrier(self):
         return self._color == Color.Black
@@ -112,44 +125,22 @@ class Node:
         self._color = Color.Pink
 
     def __eq__(self, other):
-        return self._row == other._row and self._col == other._col
+        return self._xcoord == other._xcoord and self._ycoord == other._ycoord
 
+    def __hash__(self):
+        return hash((self._xcoord, self._ycoord))
 
     def draw(self, screen):
-        """Draw a single node on the graph. Make appropriate animations based on
-        node type
+        """Draw a single node on the graph.
 
         Args:
             screen (pygame.display): The surface to draw the node on
 
         Returns:
-            list: All points that need to be redrawn by pygame due to a change.
-                  This way one saves resources and does not redraw the entire screen.
+            pygame.Rect: Rectangle representing the points that need to be updated when redrawing the screen
         """
-        radius = 0
-        frame_rate = 60
-        updated_points = list()
-
-        # Use pygame Clock to control the framerate of the program
-        fps_clock = pygame.time.Clock()
-
-        if self.is_path():
-            while True:
-                changed = pygame.draw.circle(screen, self._color.value, (self._x + self._width // 2, self._y + self._height // 2), radius)
-                radius += 2
-                pygame.display.update(changed)
-                fps_clock.tick(frame_rate)
-
-                if radius > (height // 2):
-                    break
-        
         dimensions = pygame.draw.rect(screen, self._color.value, (self._x, self._y, self._width, self._height))
-        updated_points.append(dimensions)
-        
-        if self.is_path():
-            fps_clock.tick(frame_rate)
-
-        return updated_points
+        return dimensions
 
     def update_neighbors(self, grid):
         """Update properly every node's neighbors after each redraw of the screen
@@ -161,17 +152,17 @@ class Node:
         self._neighbors = list()
 
         # total_rows - 2 since we omit the drawing of the last row for alignment purposes
-        if self._row < self._total_rows - 2 and not grid[self._row + 1][self._col].is_barrier():
-            self._neighbors.append(grid[self._row + 1][self._col])
+        if self._xcoord < self._total_rows - 1 and not grid[self._xcoord + 1][self._ycoord].is_barrier():
+            self._neighbors.append(grid[self._xcoord + 1][self._ycoord])
 
-        if self_row > 0 and not grid[self._row - 1][self._col].is_barrier():
-            self._neighbors.append(grid[self._row - 1][self._col])
+        if self._xcoord > 0 and not grid[self._xcoord - 1][self._ycoord].is_barrier():
+            self._neighbors.append(grid[self._xcoord - 1][self._ycoord])
 
-        if self._col < self._total_cols - 1 and not grid[self._row][self._col + 1].is_barrier():
-            self._neighbors.append(grid[self._row][self._col + 1])
+        if self._ycoord < self._total_cols - 1 and not grid[self._xcoord][self._ycoord + 1].is_barrier():
+            self._neighbors.append(grid[self._xcoord][self._ycoord + 1])
 
-        if self._col > 0 and not grid[self._row][self._col - 1].is_barrier():
-            self._neighbors.append(grid[self._row][self._col - 1])
+        if self._ycoord > 0 and not grid[self._xcoord][self._ycoord - 1].is_barrier():
+            self._neighbors.append(grid[self._xcoord][self._ycoord - 1])
 
 
 def init_grid(num_rows, num_cols, node_width, node_height):
@@ -190,11 +181,6 @@ def init_grid(num_rows, num_cols, node_width, node_height):
     for row in range(num_rows):
         grid.append([])
         for col in range(num_cols):
-            
-            # Don't append last row to leave space for padding when drawing
-            if row == num_rows - 1:
-                continue
-            
             grid[row].append(Node(row, col, node_width, node_height, num_rows, num_cols))
 
     return grid
@@ -251,13 +237,11 @@ def refresh_screen(screen, grid, rows, cols, node_width, node_height):
     for row in grid:
         for node in row:
             changed_area = node.draw(screen)
-            updated_points += changed_area
+            updated_points.append(changed_area)
     
     grid_dims = draw_grid_borders(screen, rows, cols, node_width, node_height)
     updated_points += grid_dims
     pygame.display.update(updated_points)
-
-    #TODO: Think about drawing animations while visualizing
 
 
 def get_clicked_position(pos, node_width, node_height):
@@ -267,6 +251,52 @@ def get_clicked_position(pos, node_width, node_height):
     col = y // node_height
 
     return int(row), int(col)
+
+
+def construct_path(animate_path_func, current, came_from):
+    """Reconstruct the path where we came from
+
+    Args:
+        animate_path_func (partial): Callable object with the proper arguments to animate found path
+        end (Node): End node for the graph
+        came_from (dict): Dictionary representing where we came from for each node
+    """
+    path = list()
+
+    while current in came_from:
+        current = came_from[current]
+        if not current.is_start():
+            current.make_path()
+            path.append(current)
+
+    animate_path_func(path)
+
+
+def animate_path(screen, path):
+    """Animate the found path on the board
+
+    Args:
+        screen (pygame.display): Surface where the animation will be drawn on
+        path (list): List of nodes leading from the end node to the beginning node
+    """
+    frame_rate = 60
+
+    # Use pygame Clock to control the framerate of the program
+    fps_clock = pygame.time.Clock()
+
+    for node in path:
+        radius = 0
+
+        while True:
+            changed = pygame.draw.circle(screen, node.color.value, (node.x + node.width // 2, node.y + node.height // 2), radius)
+            radius += 1
+            pygame.display.update(changed)
+            fps_clock.tick(frame_rate)
+
+            if radius > (node.height // 2):
+                dimensions = pygame.draw.rect(screen, node.color.value, (node.x, node.y, node.width, node.height))
+                pygame.display.update(dimensions)
+                break
 
 
 def main():
@@ -313,6 +343,40 @@ def main():
 
                 elif node != start_node and node != end_node:
                     node.make_barrier()
+
+            # Mouse input - right mouse button
+            if pygame.mouse.get_pressed()[2]:
+                mouse_position = pygame.mouse.get_pos()
+                grid_position = get_clicked_position(mouse_position, node_width, node_height)
+                row, col = grid_position
+                node = grid[row][col]
+
+                node.reset()
+                if node == start_node:
+                    start_node = None
+                elif node == end_node:
+                    end_node = None
+
+            # Run selected algorithm when space is pressed
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+
+                    # Initialize neighbors
+                    for row in grid:
+                        for node in row:
+                            node.update_neighbors(grid)
+
+                    refresh_func = partial(refresh_screen, screen, grid, rows, cols, node_width, node_height)
+                    animate_path_func = partial(animate_path, screen)
+                    construct_path_func = partial(construct_path, animate_path_func, end_node)
+                    
+                    graph_algo.BFS(refresh_func, construct_path_func, grid, start_node, end_node)
+
+                if event.key == pygame.K_TAB:
+                    start_node = None
+                    end_node = None
+                    grid = init_grid(rows, cols, node_width, node_height)
+
 
         # Sleep for x milliseconds to release the CPU to other processes
         pygame.time.wait(10)
