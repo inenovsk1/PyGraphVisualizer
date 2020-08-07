@@ -227,7 +227,7 @@ def refresh_screen(screen, grid, rows, cols, node_width, node_height):
         node_width (int): Width of a single node
         node_height (int): Height of a single node
     """
-    screen.fill(Color.White.value)
+    screen.fill(Color.Background.value)
     updated_points = list()
 
     for row in grid:
