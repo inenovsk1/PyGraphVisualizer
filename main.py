@@ -9,19 +9,15 @@ from functools import partial
 
 
 class Color(enum.Enum):
-    Red = (255, 0, 0)
-    Green = (0, 255, 0)
-    Blue = (0, 255, 0)
-    Light_blue = (102, 204, 255)
-    Yellow = (255, 255, 0)
-    White = (255, 255, 255)
-    Black = (0, 0, 0)
-    Purple = (128, 0, 128)
-    Light_purple = (102, 102, 255)
-    Orange = (255, 165 ,0)
-    Pink = (255, 192, 203)
-    Grey = (128, 128, 128)
-    Turquoise = (64, 224, 208)
+    # Material Theme Colors
+    Background = (38, 49, 50)
+    Barrier = (176, 190, 196)
+    Visited = (255, 81, 81)
+    Open = (105, 240, 173)
+    Start = (64, 196, 154)
+    End = (255, 215, 63)
+    Path = (100, 252, 218)
+    Grid = (96, 124, 139)
 
 
 class Node:
@@ -34,7 +30,7 @@ class Node:
         self._y = y * height
         self._width = width
         self._height = height
-        self._color = Color.White
+        self._color = Color.Background
         self._neighbors = []
         self._total_rows = total_rows
         self._total_cols = total_cols
@@ -86,43 +82,43 @@ class Node:
         return self._xcoord, self._ycoord
 
     def is_barrier(self):
-        return self._color == Color.Black
+        return self._color == Color.Barrier
 
-    def is_visited(self):
-        return self._color == Color.Red
+    def is_closed(self):
+        return self._color == Color.Visited
 
     def is_open(self):
-        return self._color == Color.Green
+        return self._color == Color.Open
 
     def is_start(self):
-        return self._color == Color.Light_blue
+        return self._color == Color.Start
 
     def is_end(self):
-        return self._color == Color.Light_purple
+        return self._color == Color.End
 
     def is_path(self):
-        return self._color == Color.Pink
+        return self._color == Color.Path
 
     def reset(self):
-        self._color = Color.White
+        self._color = Color.Background
 
     def make_start(self):
-        self._color = Color.Light_blue
+        self._color = Color.Start
 
     def make_closed(self):
-        self._color = Color.Red
+        self._color = Color.Visited
 
     def make_open(self):
-        self._color = Color.Green
+        self._color = Color.Open
 
     def make_barrier(self):
-        self._color = Color.Black
+        self._color = Color.Barrier
 
     def make_end(self):
-        self._color = Color.Light_purple
+        self._color = Color.End
 
     def make_path(self):
-        self._color = Color.Pink
+        self._color = Color.Path
 
     def __eq__(self, other):
         return self._xcoord == other._xcoord and self._ycoord == other._ycoord
@@ -206,7 +202,7 @@ def draw_grid_borders(screen, rows, cols, node_width, node_height):
     updated_points = list()
 
     for row in range(rows):
-        dims1 = pygame.draw.aaline(screen, Color.Black.value, (0, row * node_height), (screen_width, row * node_height))
+        dims1 = pygame.draw.aaline(screen, Color.Grid.value, (0, row * node_height), (screen_width, row * node_height))
         updated_points.append(dims1)
 
         # Omit drawing the last raw for space padding
@@ -214,7 +210,7 @@ def draw_grid_borders(screen, rows, cols, node_width, node_height):
             break
 
         for col in range(cols):
-            dims2 = pygame.draw.aaline(screen, Color.Black.value, (col * node_width, row * node_height), (col * node_width, row * node_height + node_height))
+            dims2 = pygame.draw.aaline(screen, Color.Grid.value, (col * node_width, row * node_height), (col * node_width, row * node_height + node_height))
             updated_points.append(dims2)
 
     return updated_points
