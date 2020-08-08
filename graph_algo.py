@@ -76,6 +76,9 @@ def DFSUtil(refresh_func, construct_path, came_from, current, visited, start_nod
         start_node (set): Start node of the algorithm
         end_node (Node): End node of the algorithm
         found_path (Node): Whether a path was found and no more recursion is needed
+
+    Returns:
+        True or False whether a path was found or not
     """
     global stop_recursion
 
@@ -121,6 +124,9 @@ def DFS(refresh_func, construct_path, grid, start_node, end_node):
         grid (list): Representation of the graph as a 2D matrix
         start_node (Node): Start node of the algorithm
         end_node (Node): End node of the algorithm
+
+    Returns:
+        True or False whether a path was found or not
     """
     sys.setrecursionlimit(10000)
     visited = set()
