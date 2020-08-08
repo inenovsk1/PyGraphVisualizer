@@ -80,6 +80,12 @@ def DFSUtil(refresh_func, construct_path, came_from, current, visited, start_nod
     Returns:
         True or False whether a path was found or not
     """
+    # Handle exiting while algo is running
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit(0)
+
     global stop_recursion
 
     if found_path:
