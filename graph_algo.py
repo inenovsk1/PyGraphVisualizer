@@ -93,7 +93,8 @@ def DFSUtil(refresh_func, construct_path, came_from, current, visited, start_nod
             break
 
         if neighbor in visited:
-            neighbor.make_closed()
+            if neighbor != start_node:
+                neighbor.make_closed()
         
         if neighbor not in visited:
             came_from[neighbor] = current
@@ -121,6 +122,7 @@ def DFS(refresh_func, construct_path, grid, start_node, end_node):
         start_node (Node): Start node of the algorithm
         end_node (Node): End node of the algorithm
     """
+    sys.setrecursionlimit(10000)
     visited = set()
     visited.add(start_node)
     
