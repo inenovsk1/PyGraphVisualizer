@@ -17,7 +17,7 @@ class Color(enum.Enum):
     Barrier = (176, 190, 196)
     Visited = (255, 81, 81)
     Open = (105, 240, 173)
-    Start = (64, 196, 154)
+    Start = (64, 196, 254)
     End = (255, 215, 63)
     Path = (81, 45, 168)
     Grid = (96, 124, 139)
