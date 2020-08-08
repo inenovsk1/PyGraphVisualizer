@@ -1,9 +1,12 @@
+#!/usr/bin/env python3
+
 """ Graph Visualizer using Pygame
 """
 import sys
 import enum
 import math
 import pygame
+import argparse
 import graph_algo
 from functools import partial
 
@@ -292,9 +295,30 @@ def animate_path(screen, path):
 
 
 def main():
+    parser = argparse.ArgumentParser(description="""Python Graph Visualizer written with pygame
+    Usage instructions:
+    1. Press the mouse once anywhere on the grid to mark the begin node.
+    2. Press the mouse twice somewhere on the grid to mark the end node.
+    3. Press, hold, and drag the mouse to create barriers.
+    4. Press SPACE for the algorithm to start.
+    5. Press TAB for the screen to clear so 1-4 can be performed again.
+    6. Press ESCAPE or OS's program shutdown combination to close.""", formatter_class=argparse.RawTextHelpFormatter)
+    
+    parser.add_argument('-f', '--fullscreen', action='store_true', dest='fullscreen', help='Fullscreen mode vs. Windowed mode')
+    parser.add_argument('-a' '--algo', dest='algo', choices=['BFS', 'DFS'], required=True, help='Algorithm to visualize')
+    parser.add_argument('-b', '--board', dest='board_size', required=True, help='Size of the board - if 30, then board is 30x30')
+    
+    args = parser.parse_args()
+    algo = args.algo
+
     pygame.init()
-    screen = pygame.display.set_mode()
-    pygame.display.toggle_fullscreen()
+
+    screen = None
+    if args.fullscreen:
+        screen = pygame.display.set_mode()
+        pygame.display.toggle_fullscreen()
+    else:
+        screen = pygame.display.set_mode((1280, 720))
     pygame.display.set_caption("PyGraphVisualizer")
 
     # Get display size on any monitor - width x height
@@ -302,9 +326,9 @@ def main():
     size = screen_width, screen_height = info.current_w, info.current_h
 
     #Calculate each node's width and height
-    rows = cols = 30
+    rows = cols = int(args.board_size)
     node_width = screen_width / rows
-    node_height = screen_height // cols
+    node_height = screen_height / cols
     
     grid = init_grid(rows, cols, node_width, node_height)
     start_node = None
@@ -363,7 +387,10 @@ def main():
                     animate_path_func = partial(animate_path, screen)
                     construct_path_func = partial(construct_path, animate_path_func, end_node)
                     
-                    graph_algo.BFS(refresh_func, construct_path_func, grid, start_node, end_node)
+                    if algo == "BFS":
+                        graph_algo.BFS(refresh_func, construct_path_func, grid, start_node, end_node)
+                    elif algo == "DFS":
+                        graph_algo.DFS(refresh_func, construct_path_func, grid, start_node, end_node)
 
                 if event.key == pygame.K_TAB:
                     start_node = None
