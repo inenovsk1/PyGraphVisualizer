@@ -13,3 +13,6 @@ For more detailed information regarding the options, type:
 ```
 ./main.py --help
 ```
+
+# Caveats
+Beware that the larger the grid, the more time the algorithm will take to complete. I have synchronized pygame to work at 60 FPS, however, the larger the grid, again, may make the graphics appear more sluggish and unresponsive especially when dragging and selecting the barriers. Ideally the grid should be anywhere from 30 to 60.
