@@ -205,10 +205,6 @@ def draw_grid_borders(screen, rows, cols, node_width, node_height):
         dims1 = pygame.draw.aaline(screen, Color.Grid.value, (0, row * node_height), (screen_width, row * node_height))
         updated_points.append(dims1)
 
-        # Omit drawing the last raw for space padding
-        if row == rows - 1:
-            break
-
         for col in range(cols):
             dims2 = pygame.draw.aaline(screen, Color.Grid.value, (col * node_width, row * node_height), (col * node_width, row * node_height + node_height))
             updated_points.append(dims2)
@@ -298,6 +294,7 @@ def animate_path(screen, path):
 def main():
     pygame.init()
     screen = pygame.display.set_mode()
+    pygame.display.toggle_fullscreen()
     pygame.display.set_caption("PyGraphVisualizer")
 
     # Get display size on any monitor - width x height
@@ -372,6 +369,10 @@ def main():
                     start_node = None
                     end_node = None
                     grid = init_grid(rows, cols, node_width, node_height)
+
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit(0)
 
 
         # Sleep for x milliseconds to release the CPU to other processes
