@@ -305,7 +305,7 @@ def main():
     6. Press ESCAPE or OS's program shutdown combination to close.""", formatter_class=argparse.RawTextHelpFormatter)
     
     parser.add_argument('-f', '--fullscreen', action='store_true', dest='fullscreen', help='Fullscreen mode vs. Windowed mode')
-    parser.add_argument('-a' '--algo', dest='algo', choices=['BFS', 'DFS'], required=True, help='Algorithm to visualize')
+    parser.add_argument('-a' '--algo', dest='algo', choices=['BFS', 'DFS', 'AStar'], required=True, help='Algorithm to visualize')
     parser.add_argument('-b', '--board', dest='board_size', required=True, help='Size of the board - if 30, then board is 30x30')
     
     args = parser.parse_args()
@@ -391,6 +391,9 @@ def main():
                         graph_algo.BFS(refresh_func, construct_path_func, grid, start_node, end_node)
                     elif algo == "DFS":
                         graph_algo.DFS(refresh_func, construct_path_func, grid, start_node, end_node)
+                    elif algo == "AStar":
+                        print("called correct algo")
+                        graph_algo.AStar(refresh_func, construct_path_func, grid, start_node, end_node)
 
                 if event.key == pygame.K_TAB:
                     start_node = None
