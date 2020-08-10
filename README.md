@@ -14,5 +14,19 @@ For more detailed information regarding the options, type:
 ./main.py --help
 ```
 
+# Example Usage
+### Run Fullscreen A star on a 50x50 board
+```
+./main.py -f -a AStar -b 50
+```
+
+### Run Breadth First Search in Windowed Mode on a 30x30 board
+```
+./main.py -a BFS -b 30
+```
+
+To clear the board press TAB.
+To exit press either ESCAPE or the corresponding key combination to close apps on your OS. For example on macOS - ⌘+Q
+
 # Caveats
 Beware that the larger the grid, the more time the algorithm will take to complete. I have synchronized pygame to work at 60 FPS, however, as previously stated the larger the grid the more sluggish and unresponsive the graphics may appear especially when dragging and selecting the barriers. Ideally the grid should be anywhere from 30 to 60 (that is 30x30 to 60x60).
