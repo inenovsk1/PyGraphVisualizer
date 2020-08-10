@@ -14,7 +14,7 @@ For more detailed information regarding the options, type:
 ./main.py --help
 ```
 
-# Example Usage
+# Examples
 ### Run Fullscreen A star on a 50x50 board
 ```
 ./main.py -f -a AStar -b 50
