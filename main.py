@@ -392,7 +392,6 @@ def main():
                     elif algo == "DFS":
                         graph_algo.DFS(refresh_func, construct_path_func, grid, start_node, end_node)
                     elif algo == "AStar":
-                        print("called correct algo")
                         graph_algo.AStar(refresh_func, construct_path_func, grid, start_node, end_node)
 
                 if event.key == pygame.K_TAB:
