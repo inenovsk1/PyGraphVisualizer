@@ -1,0 +1,39 @@
+[project]
+name = "pygraphvisualizer"
+version = "0.1.0"
+description = "Pygame visualizer for grid pathfinding algorithms (BFS, DFS, A*)"
+readme = "README.md"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+authors = [{ name = "Ivaylo Nenovski", email = "inenovski95@gmail.com" }]
+requires-python = ">=3.12"
+dependencies = ["pygame-ce>=2.5.8"]
+
+[project.scripts]
+pygraphvisualizer = "pygraphvisualizer.app:main"
+
+[build-system]
+requires = ["uv_build>=0.13,<0.14"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1.414",
+    "pytest>=9.2.0",
+    "ruff>=0.17.3",
+]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.pyright]
+include = ["src", "tests"]
+pythonVersion = "3.12"
+typeCheckingMode = "strict"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
