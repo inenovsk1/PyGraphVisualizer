@@ -18,7 +18,7 @@ class PathAnimation:
 
     def __init__(self, nodes: tuple[Node, ...]) -> None:
         self._pending = deque(nodes)
-        self._radius = 0
+        self._radius = 0.0
 
     @property
     def finished(self) -> bool:
@@ -30,15 +30,19 @@ class PathAnimation:
 
     @property
     def radius(self) -> int:
-        return self._radius
+        return int(self._radius)
 
-    def advance(self, board: Board, cell_height: float) -> None:
+    def advance(self, board: Board, cell_height: float, pixels: float = 1) -> None:
+        """Grow the circle by ``pixels``, filling as many Nodes as that growth covers."""
         if not self._pending:
             return
-        self._radius += 1
-        if self._radius > int(cell_height) // 2:
+        self._radius += pixels
+        full = int(cell_height) // 2 + 1  # radius at which the circle fills the cell
+        while self._pending and self._radius >= full:
             board.mark(self._pending.popleft(), State.PATH)
-            self._radius = 0
+            self._radius -= full
+        if not self._pending:
+            self._radius = 0.0
 
 
 class BoardView:
@@ -61,6 +65,7 @@ class BoardView:
         return None
 
     def draw(self, board: Board, animation: PathAnimation | None = None) -> None:
+        """Draw the Board onto the screen surface. The caller flips the display."""
         self._screen.fill(BACKGROUND)
         for node in board.nodes():
             color = STATE_COLORS[board.state(node)]
@@ -71,7 +76,6 @@ class BoardView:
             pygame.draw.circle(
                 self._screen, STATE_COLORS[State.PATH], rect.center, animation.radius
             )
-        pygame.display.flip()
 
     def _rect(self, node: Node) -> pygame.Rect:
         return pygame.Rect(

@@ -5,7 +5,7 @@ An interactive visualizer that shows pathfinding algorithms exploring a square B
 ## Language
 
 **Board**:
-The square N×N field of Nodes the user draws on and the Algorithm searches. The `-b` size sets N.
+The square N×N field of Nodes the user draws on and the Algorithm searches. The Config's size sets N.
 _Avoid_: Grid, graph, map
 
 **Node**:
@@ -43,7 +43,7 @@ _Avoid_: Route, solution
 ## Searching
 
 **Algorithm**:
-A named pathfinding strategy the user selects at launch: BFS, DFS or A*.
+A named pathfinding strategy the user selects in the Menu as part of a Config: BFS, DFS or A*.
 _Avoid_: Solver, strategy
 
 **Search**:
@@ -53,3 +53,25 @@ _Avoid_: Run, execution, traversal
 **Step**:
 One increment of progress a Search reports between redraws: the Nodes that became Open or Closed since the last Step, or the finished Path.
 _Avoid_: Tick, event, move
+
+## Sessions
+
+**Config**:
+The combination of Board size, Algorithm and Speed the user chooses in the Menu. It stays fixed for the Sessions that follow until the user chooses a new one.
+_Avoid_: Settings, options, setup
+
+**Speed**:
+How fast a Search and its Path are shown, chosen as one of the named levels Slow, Normal, Fast, xFast or Ultra. It is part of the Config and does not change mid-Session.
+_Avoid_: Rate, delay, FPS
+
+**Menu**:
+The screen where the user chooses a Config before a Session. It opens with the most recently chosen Config already filled in.
+_Avoid_: Launcher, settings screen
+
+**Prompt**:
+The panel shown over the finished Board when a Session ends, offering to continue with the same Config or to choose a new one in the Menu.
+_Avoid_: Dialog, popup, end screen
+
+**Session**:
+One Board drawn with one Config, lasting for exactly one Search and its Path animation. It ends with the Prompt, or earlier if the user abandons it. Continuing with the same Config starts a new Session on a fresh, empty Board.
+_Avoid_: Game, round, run

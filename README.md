@@ -13,21 +13,23 @@ uv sync
 ## Usage
 
 ```
-uv run pygraphvisualizer -a {BFS|DFS|AStar} -b <size> [-f]
+uv run pygraphvisualizer [-a {BFS|DFS|AStar}] [-b <size>] [-f]
 uv run pygraphvisualizer --help
 ```
 
-`python -m pygraphvisualizer ...` works too. `-a` and `-b` are required; `-f` runs fullscreen instead of in a 1280x720 window. The board is `size` x `size`, with a size from 2 to 200.
+`python -m pygraphvisualizer ...` works too. The Menu opens first, where you choose the board size (2 to 200), the algorithm and the speed (Slow, Normal, Fast, xFast, Ultra), then press Start. `-a` and `-b` only preselect the Menu's algorithm and board size; `-f` runs fullscreen instead of in a 1280x720 window.
+
+Each Start opens a board for one run of the chosen algorithm. When it finishes, a prompt offers to continue with the same Config on a fresh board, or to go back to the Menu and pick new ones.
 
 ### Examples
 
-Fullscreen A* on a 50x50 board:
+Fullscreen, with the Menu preselecting A* on a 50x50 board:
 
 ```
 uv run pygraphvisualizer -f -a AStar -b 50
 ```
 
-Breadth First Search in a window on a 30x30 board:
+Windowed, with the Menu preselecting Breadth First Search on a 30x30 board:
 
 ```
 uv run pygraphvisualizer -a BFS -b 30
@@ -43,7 +45,8 @@ uv run pygraphvisualizer -a BFS -b 30
 | Right-click | Erase |
 | `SPACE` | Run the algorithm |
 | `TAB` | Clear the board |
-| `ESC` | Quit |
+| `ENTER` | Menu: Start. Prompt: Continue |
+| `ESC` | On a board or the prompt: back to the Menu. In the Menu: quit |
 
 ## Development
 
@@ -58,7 +61,7 @@ See [GLOSSARY.md](GLOSSARY.md) for the project's vocabulary and [docs/adr](docs/
 
 ## Caveats
 
-The larger the board, the longer a search takes, and the app runs at 60 FPS with one step per frame. A board of 30 to 60 works well.
+The larger the board, the longer a search takes. At Normal speed the app runs at 60 FPS with one step per frame, so a board of 30 to 60 works well; pick a faster speed for bigger boards.
 
 ## License
 

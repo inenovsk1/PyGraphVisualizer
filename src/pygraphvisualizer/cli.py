@@ -2,40 +2,46 @@
 
 import argparse
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from pygraphvisualizer.algorithms import ALGORITHMS
-
-MIN_BOARD_SIZE = 2
-MAX_BOARD_SIZE = 200
+from pygraphvisualizer.config import DEFAULT_CONFIG, Config, parse_board_size
 
 DESCRIPTION = """Python Graph Visualizer written with pygame
-Usage instructions:
+The Menu opens first: choose the Board size, Algorithm and Speed, then press Start.
+-a and -b only preselect the Menu's Algorithm and Board size.
+
+In a Session:
 1. Click once anywhere on the board to mark the Start node.
 2. Click a second time somewhere on the board to mark the End node.
 3. Click, hold, and drag to create Barriers. Right-click to erase.
-4. Press SPACE for the algorithm to start.
+4. Press SPACE for the algorithm to start. When it finishes, choose to continue with
+   the same Config or to go back to the Menu.
 5. Press TAB to clear the board so 1-4 can be performed again.
-6. Press ESCAPE or your OS's program shutdown combination to close."""
+6. Press ESCAPE to return to the Menu (from the Menu it closes the program)."""
 
 
 @dataclass(frozen=True, slots=True)
 class Options:
-    algo: str
-    board_size: int
+    algo: str | None
+    board_size: int | None
     fullscreen: bool
+
+    def initial_config(self) -> Config:
+        """The Config the Menu starts with: the defaults, overridden by what was given."""
+        config = DEFAULT_CONFIG
+        if self.algo is not None:
+            config = replace(config, algo=self.algo)
+        if self.board_size is not None:
+            config = replace(config, board_size=self.board_size)
+        return config
 
 
 def _board_size(value: str) -> int:
     try:
-        size = int(value)
-    except ValueError:
-        raise argparse.ArgumentTypeError(f"{value!r} is not an integer") from None
-    if not MIN_BOARD_SIZE <= size <= MAX_BOARD_SIZE:
-        raise argparse.ArgumentTypeError(
-            f"must be between {MIN_BOARD_SIZE} and {MAX_BOARD_SIZE}, got {size}"
-        )
-    return size
+        return parse_board_size(value)
+    except ValueError as error:
+        raise argparse.ArgumentTypeError(str(error)) from None
 
 
 def parse_args(argv: Sequence[str] | None = None) -> Options:
@@ -51,16 +57,14 @@ def parse_args(argv: Sequence[str] | None = None) -> Options:
         "-a",
         "--algo",
         choices=list(ALGORITHMS),
-        required=True,
-        help="Algorithm to visualize",
+        help="Algorithm preselected in the Menu",
     )
     parser.add_argument(
         "-b",
         "--board",
         dest="board_size",
         type=_board_size,
-        required=True,
-        help="Size of the board - if 30, then the board is 30x30",
+        help="Board size preselected in the Menu - if 30, then the board is 30x30",
     )
     args = parser.parse_args(argv)
     return Options(args.algo, args.board_size, args.fullscreen)

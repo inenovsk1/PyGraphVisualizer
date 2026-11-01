@@ -84,6 +84,18 @@ wheels = [
 ]
 
 [[package]]
+name = "pygame-gui"
+version = "0.6.14"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pygame-ce" },
+    { name = "python-i18n" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/29/bf/d2589b06e39a6588480e6313ab530a6073a4ac6734d0f48a1883a5c46236/pygame_gui-0.6.14-py2.py3-none-any.whl", hash = "sha256:e351e88fab01756af6338d071c3cf6ce832a90c3b9f7db4fcb7b5216d5634482", size = 30896869, upload-time = "2025-05-30T18:25:53.938Z" },
+]
+
+[[package]]
 name = "pygments"
 version = "2.21.0"
 source = { registry = "https://pypi.org/simple" }
@@ -98,6 +110,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "pygame-ce" },
+    { name = "pygame-gui" },
 ]
 
 [package.dev-dependencies]
@@ -108,7 +121,10 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "pygame-ce", specifier = ">=2.5.8" }]
+requires-dist = [
+    { name = "pygame-ce", specifier = ">=2.5.8" },
+    { name = "pygame-gui", specifier = ">=0.6.14" },
+]
 
 [package.metadata.requires-dev]
 dev = [
@@ -144,6 +160,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/79/42/bb4641652e58dedeac2ec51abc1f8cae4fee4ec63899a0999016229a0f2a/pytest-9.2.0.tar.gz", hash = "sha256:97c4f3b1f3c7414aa36465e09b8220f1d03627993bd51b1282e193753c80557b", size = 1797555, upload-time = "2026-10-27T21:30:20.728Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/51/39/1f5d8c8877a0fa327db959c19341d4be61660de1ab6b7391f9eb805bcd67/pytest-9.2.0-py3-none-any.whl", hash = "sha256:07acdcf88ec174f907dc01af70bf52d49b014bbab03faeeade31c96b18c2e588", size = 411776, upload-time = "2026-10-27T21:30:19.131Z" },
+]
+
+[[package]]
+name = "python-i18n"
+version = "0.3.9"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/fe/32/d9ba976458c9503ec22db4eb677a5d919edaecd73d893effeaa92a67b84b/python-i18n-0.3.9.tar.gz", hash = "sha256:df97f3d2364bf3a7ebfbd6cbefe8e45483468e52a9e30b909c6078f5f471e4e8", size = 11778, upload-time = "2020-08-26T14:31:27.512Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5a/73/9a0b2974dd9a3d50788d235f10c4d73c2efcd22926036309645fc2f0db0c/python_i18n-0.3.9-py3-none-any.whl", hash = "sha256:bda5b8d889ebd51973e22e53746417bd32783c9bd6780fd27cadbb733915651d", size = 13750, upload-time = "2020-08-26T14:31:26.266Z" },
 ]
 
 [[package]]
