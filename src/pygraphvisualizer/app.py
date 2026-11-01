@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 
 """ Graph Visualizer using Pygame
 """
@@ -7,7 +6,7 @@ import enum
 import math
 import pygame
 import argparse
-import graph_algo
+from pygraphvisualizer import graph_algo
 from functools import partial
 
 
