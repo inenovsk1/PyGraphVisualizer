@@ -51,5 +51,5 @@ One run of an Algorithm on the Board from Start to End. It ends with either a Pa
 _Avoid_: Run, execution, traversal
 
 **Step**:
-One observable change during a Search, such as a Node becoming Open or Closed, or a Path being found.
+One increment of progress a Search reports between redraws: the Nodes that became Open or Closed since the last Step, or the finished Path.
 _Avoid_: Tick, event, move
