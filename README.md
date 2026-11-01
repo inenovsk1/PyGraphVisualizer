@@ -1,32 +1,65 @@
 # PyGraphVisualizer
-Python Graph Algorithm Visualizer Using Pygame.
 
-# About Pygame
-Pygame is a python library used for creating 2D and 3D games and applications. This program uses pygame as well, so before running it one must install pygame first. For more information on how to do that based on your platform please visit the [Getting Started](https://www.pygame.org/wiki/GettingStarted) pygame page. I have developed this application with pygame2 in mind and using version 2's documentation so it is preferable for one to use version 2 of the librray.
+A [pygame](https://pyga.me) visualizer for grid pathfinding algorithms: Breadth First Search, Depth First Search and A*.
 
-# Usage
-Python version 3 is the recommended version to use when running this. File main.py provides a shebang, which defaults to the latest version of python 3 so one can simply run main.py in terminal like an executable:
+## Setup
+
+Requires [uv](https://docs.astral.sh/uv/) (it installs Python and the dependencies for you).
+
 ```
-./main.py [options]
-```
-For more detailed information regarding the options, type:
-```
-./main.py --help
+uv sync
 ```
 
-# Examples
-### Run Fullscreen A star on a 50x50 board
+## Usage
+
 ```
-./main.py -f -a AStar -b 50
+uv run pygraphvisualizer -a {BFS|DFS|AStar} -b <size> [-f]
+uv run pygraphvisualizer --help
 ```
 
-### Run Breadth First Search in Windowed Mode on a 30x30 board
+`python -m pygraphvisualizer ...` works too. `-a` and `-b` are required; `-f` runs fullscreen instead of in a 1280x720 window. The board is `size` x `size`, with a size from 2 to 200.
+
+### Examples
+
+Fullscreen A* on a 50x50 board:
+
 ```
-./main.py -a BFS -b 30
+uv run pygraphvisualizer -f -a AStar -b 50
 ```
 
-To clear the board press TAB.
-To exit press either ESCAPE or the corresponding key combination to close apps on your OS. For example on macOS - ⌘+Q
+Breadth First Search in a window on a 30x30 board:
 
-# Caveats
-Beware that the larger the grid, the more time the algorithm will take to complete. I have synchronized pygame to work at 60 FPS, however, as previously stated the larger the grid the more sluggish and unresponsive the graphics may appear especially when dragging and selecting the barriers. Ideally the grid should be anywhere from 30 to 60 (that is 30x30 to 60x60).
+```
+uv run pygraphvisualizer -a BFS -b 30
+```
+
+### Controls
+
+| Input | Action |
+|---|---|
+| First click | Place the Start node |
+| Second click | Place the End node |
+| Click or drag | Draw barriers |
+| Right-click | Erase |
+| `SPACE` | Run the algorithm |
+| `TAB` | Clear the board |
+| `ESC` | Quit |
+
+## Development
+
+```
+uv run pytest            # tests (headless, no display needed)
+uv run ruff check .      # lint
+uv run ruff format .     # format
+uv run pyright           # type check
+```
+
+See [GLOSSARY.md](GLOSSARY.md) for the project's vocabulary and [docs/adr](docs/adr) for design decisions.
+
+## Caveats
+
+The larger the board, the longer a search takes, and the app runs at 60 FPS with one step per frame. A board of 30 to 60 works well.
+
+## License
+
+BSD 3-Clause. See [LICENSE](LICENSE).

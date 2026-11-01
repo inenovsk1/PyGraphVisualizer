@@ -4,37 +4,44 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-A pygame (v2) visualizer for grid pathfinding algorithms (BFS, DFS, A*). There is no build step, dependency manifest, test suite, or linter — just two Python files. Install `pygame` manually.
+A pygame-ce visualizer for grid pathfinding algorithms (BFS, DFS, A*). A uv-managed Python package (`src/pygraphvisualizer/`) with a pytest suite, Ruff and Pyright. Python >=3.12, developed on 3.14. Vocabulary is in `GLOSSARY.md`; use those terms (Board, Node, State, Search, Step), not grid/graph/visited.
 
-## Running
+## Commands
 
 ```
-./main.py -a {BFS|DFS|AStar} -b <N> [-f]     # e.g. ./main.py -a AStar -b 50 -f
-./main.py --help
+uv sync                                              # install
+uv run pygraphvisualizer -a {BFS|DFS|AStar} -b <N> [-f]   # run; also python -m pygraphvisualizer
+uv run pytest                                        # tests (headless)
+uv run pytest tests/test_algorithms.py               # single file
+uv run ruff check . && uv run ruff format .          # lint + format
+uv run pyright                                       # type check (strict)
 ```
 
-`-a` and `-b` are required; `-f` is fullscreen (otherwise a 1280x720 window). The board is N×N. Controls: first click = start, second click = end, further click/drag = barriers, right-click = erase, SPACE = run, TAB = clear, ESC = quit.
+`-a` and `-b` are required (`-b` is 2-200); `-f` is fullscreen, otherwise a 1280x720 window. Controls: first click = Start, second = End, further click/drag = Barriers, right-click = erase, SPACE = run, TAB = clear, ESC = quit.
 
-Because it opens a GUI window, changes can only be verified by running the app interactively.
+The GUI can't be exercised by tests. To smoke-test headlessly, set `SDL_VIDEODRIVER=dummy`, build an `App`, post pygame events and call its `_handle_events`/`_advance`/`_view.draw`. Anything visual still needs a human running the app.
 
 ## Architecture
 
-- `main.py` — `Color` enum (a node's state *is* its color; `Node.is_barrier()` etc. compare against it), `Node` class, drawing helpers, and `main()` with the event loop. The loop redraws every frame, handles mouse/keyboard, and on SPACE recomputes every node's neighbors and calls the selected algorithm **synchronously**.
-- `graph_algo.py` — `BFS`, `DFS`, `AStar`, each with signature `(refresh_func, construct_path, grid, start_node, end_node)`. These run their own blocking loop: they mutate node colors (`make_open` / `make_closed`), call `refresh_func()` each step to render, and poll `pygame.event.get()` for `QUIT` so the window can still be closed mid-run.
-- `refresh_func` and `construct_path` are `functools.partial`s built in `main()`'s SPACE handler, so the algorithms never touch pygame surfaces directly except for event polling. On success, an algorithm calls `construct_path(came_from)`, which colors the path and runs the circle animation in `animate_path`.
+- `board.py` - `State` enum, `Node` (an `(x, y)` NamedTuple) and `Board`, which owns every Node's State plus Start/End. No pygame.
+- `algorithms.py` - `bfs`, `dfs`, `astar` as generators with signature `(board, start, end) -> Iterator[Step]`, plus `Step`, `apply_step` and the `ALGORITHMS` registry. No pygame (ADR-0001): they read the Board and yield Steps; they never draw or poll events. The final Step of a successful Search carries the `path`.
+- `cli.py` - argparse and `Options`; board size validation.
+- `theme.py` - State -> color map.
+- `view.py` - `BoardView` (pixels <-> Nodes, drawing) and `PathAnimation`.
+- `app.py` - `App`: window, input, and the main loop. Each frame it handles events, advances the running Search by one Step (or the Path animation), and redraws. This is the only module with an event loop.
 
 ### Adding an algorithm
 
-Add the function to `graph_algo.py` with the same signature, add its name to the `choices` list of the `-a` argument, and add an `elif` branch in the SPACE handler in `main()`.
+Write a generator `(board, start, end) -> Iterator[Step]` in `algorithms.py` and add it to `ALGORITHMS`; the `-a` choices come from that dict. Test it by adding it to the parametrized lists in `tests/test_algorithms.py`.
 
 ## Gotchas
 
-- Grid is indexed `grid[x][y]` (column-major: first index is the horizontal cell, `Node(row, col, ...)` stores `_xcoord=row`). `rows` and `cols` are both `board_size`, but node width/height are derived separately from screen width/height, so cells are rectangular on non-square displays.
-- `Node.__eq__`/`__hash__` are based on grid coordinates only, so nodes work as dict/set keys (`came_from`, `visited`, `g_score`).
-- Neighbors are recalculated only when SPACE is pressed (`update_neighbors`), and barriers are excluded from them there.
-- The `-a` argument is declared as `'-a' '--algo'` with no comma (Python concatenates to `'-a--algo'`); `-a X` still works via argparse prefix matching, but `--algo` does not. Fix with a comma if touching it.
-- `DFS` is recursive and uses a module-level `stop_recursion` flag plus `sys.setrecursionlimit(10000)`; large boards can still hit recursion limits.
-- Running an algorithm a second time without pressing TAB leaves the previous open/closed/path colors on the grid.
+- `Node(x, y)`: `x` is the column and `y` the row. Cells are rectangular on non-square displays because width and height are divided separately.
+- `Board.neighbors` returns Nodes in the order +x, -x, +y, -y and excludes Barriers. Neighbors are computed on demand.
+- `Board.mark` only paints Search states and never overwrites Start, End or Barrier. `Board.clear_search` removes Open/Closed/Path; it runs before every Search, so re-running without TAB is fine.
+- `Step.path` lists the Nodes strictly between Start and End, ordered from the End side. An empty tuple means adjacent Start and End; `None` means no path found.
+- The path is not painted by `apply_step` in the app: `PathAnimation` reveals it one Node at a time and marks each Node as Path when its circle fills the cell.
+- Editing and SPACE are ignored while a Search or Path animation is running; TAB always resets.
 
 ## Agent skills
 
